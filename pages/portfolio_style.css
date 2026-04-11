@@ -588,11 +588,11 @@ html {
 }
 
 .layer1 {
-    background-image: url('assets/images/skills-waves-top.svg');
+    background-image: url('/assets/images/skills-waves-top.svg');
 }
 
 .layer2 {
-    background-image: url('assets/images/skills-waves-bottom.svg');
+    background-image: url('/assets/images/skills-waves-bottom.svg');
 }
 
 .waves {
@@ -608,7 +608,7 @@ html {
     left: 0;
     width: 100%;
     height: 100px;
-    background: url('assets/images/wave-black.svg');
+    background: url('/assets/images/wave-black.svg');
     background-size: 1000px 100px;
 }
 

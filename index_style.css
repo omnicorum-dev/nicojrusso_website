@@ -175,3 +175,7 @@ html {
   font-variation-settings:
     "wdth" 100;
 }
+
+.secret a {
+    color: lightblue;
+}

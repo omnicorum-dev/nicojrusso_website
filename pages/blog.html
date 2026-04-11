@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nico Russo Blog</title>
+    <link rel="stylesheet" href="personal_style.css">
+
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!--SITE BOX-->
+
+    <div id="sitecanvas"> 
+
+        <!--HEADER-->
+
+        <nav>
+            <div class="logo">
+                <a href="/"><img src="/assets/images/kris_shield.gif" height="80"></a>
+            </div>
+            <ul id="menulist" style="max-height: 0px;">
+                <li><a href="/index.html">MAIN</a></li>
+                <li><a href="/pages/personal.html">HOME</a></li>
+                <li><a href="/pages/blog.html">BLOG</a></li>
+            </ul>
+            <script>
+                let menulist = document.getElementById("menulist")
+                menulist.style.maxHeight = "0px";
+                function toggleMenu(){
+                    if(menulist.style.maxHeight == "0px") {
+                        menulist.style.maxHeight = "360px";
+                    }
+                    else {
+                        menulist.style.maxHeight = "0px";
+                    }
+                }
+            </script>
+
+        </nav>
+
+        <!--CONTENT-->
+
+        <div class="pagecanvas">
+            <div class="pagecontent">
+                <h1 class="blogheader">BLOG</h1>
+                <a href="/directory/"><h2 class="blogheading">WEBCOMIC DIARIES #1</h1></a>
+                <div class="metanotes"> February 4, 2025 </div>
+                <div class="blogtextentry"><p>So a while ago I caved in and made a Tumblr blog for my WIP magical girl webcomic to help get people interested in the project. I was inspired by a couple of my friends who already have pages for their stories/OCs and so far it’s been working well for them [...]</p></div>
+                [<a href="/directory/"><b>READ MORE</b></a>]
+
+                <hr class="comicdivider">
+                <a href="/directory/"><h2 class="blogheading">OFFICIAL SITE LAUNCH!</h1></a>
+                <div class="metanotes"> January 18, 2025 </div>
+                <div class="blogtextentry"><p>After months of waiting my website is finally here! Thank you guys again for being patient with me these past few months. Originally, I hosted my site through Neocities, but I wanted something more “sustainable” just in case it shuts down one day [...]</p></div>
+                [<a href="/directory/"><b>READ MORE</b></a>]
+                <div class="blogcushion"></div>
+            </div>
+
+            </div>
+        <!--FOOTER-->
+        <footer>
+            <div id="footer">
+                <p>Copyright © 2026 Nico Russo</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
