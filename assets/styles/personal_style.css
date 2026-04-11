@@ -1,6 +1,7 @@
 html {
-  font-family: "Roboto";
-  font-size: 12px;
+  font-family: "Montserrat";
+  font-weight: 450;
+  font-size: 14px;
   scroll-behavior: smooth;
 }
 
@@ -80,6 +81,7 @@ h1, h2{
   box-shadow: 2px 2px 6px var(--border-shadow);
   padding: .5em 0;
   border-radius: .8em;
+  text-align: center;
   text-transform: uppercase;
 }
 
@@ -87,6 +89,8 @@ h1, h2{
   text-align: center;
   list-style-type: "";
   padding-left: 0;
+  border-radius: 6px;
+  background: slategrey;
   display: flex;
   justify-content: space-evenly;
   flex-wrap: wrap;
@@ -96,7 +100,73 @@ h1, h2{
 }
 
 #navigate li {
+  font-size: medium;
   width: 100%;
+  margin: 8px;
+  border-radius: 3px;
+  padding: 6px;
+  background: whitesmoke;
+}
+
+li a {
+  display: inline-block;
+  width: 100%;
+  color: darkmagenta;
+  height: 2rem;
+  font-weight: bold;
+  line-height: 2rem;
+  vertical-align: middle;
+  border-radius: .3em;
+  text-decoration: none;
+  padding: 0 .5em;
+}
+
+#navigate summary {
+  font-weight: 800;
+  font-size: 24px;
+  text-shadow: 2px 2px black;
+  border: none;
+  margin: 0;
+  padding: .3em;
+}
+
+.contained {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  column-gap: 100%;
+  row-gap: 10px;
+  margin-bottom: 1em;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.contained-heading {
+  border-radius: 6px 6px 0 0;
+  background: slategrey;
+  text-shadow: 2px 2px black;
+  border: none;
+  margin: 0;
+  margin-top: 1em;
+  padding: .3em .5em;
+}
+
+.contained-body {
+  background-color: whitesmoke;
+  color: black;
+  margin: 0;
+  padding: .5em;
+  border-radius: 0 0 6px 6px;
+}
+
+.clearfix {
+  margin: 10px;
+}
+
+#welcome img {
+  border-radius: 10%;
+  float: left;
+  margin-right: 10px;
 }
 
 @media only screen and (max-width: 1440px) {
