@@ -121,6 +121,90 @@ li a {
   padding: 0 .5em;
 }
 
+article {
+  width: 100%;
+}
+
+#gen-title {
+  background-color: darkmagenta;
+}
+
+#vg-title {
+  background-color: darkblue;
+}
+
+#music-title {
+  background-color: darkred;
+}
+
+.favgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+
+  height: 35rem;
+  overflow-y: auto;
+
+  align-items: start;
+  align-content: start;
+
+  padding-right: 0.25rem;
+  grid-auto-rows: min-content;
+}
+
+.item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.item img {
+    width: 100%;
+    object-fit: cover;
+    display: block;
+    border: 2px solid darkslategray;
+    border-radius: 12px;
+    box-shadow: 2px 2px 0 black;
+}
+
+figcaption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    text-align: center;
+    padding: 0.5em;
+    line-height: normal;
+}
+
+.item:hover figcaption {
+    opacity: 1;
+}
+
+figure.item {
+    display: flex;
+    margin: 0;
+    line-height: 0;
+}
+
+.favgrid img {
+  width: 100%;
+  height: 100%;
+  border: 2px solid darkslategray;
+  border-radius: 12px;
+  box-shadow: 2px 2px 0 black;
+}
+
 #navigate summary {
   font-weight: 800;
   font-size: 24px;
