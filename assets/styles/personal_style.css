@@ -137,6 +137,18 @@ article {
   background-color: darkred;
 }
 
+#anime-title {
+  background-color: darkkhaki;
+}
+
+#book-title {
+  background-color: deepskyblue;
+}
+
+#manga-title {
+  background-color: darkslateblue;
+}
+
 .favgrid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
