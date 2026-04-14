@@ -1,0 +1,7 @@
+20260414101339
+Phone Compatibility for Index
+25
+open
+index,phone,css,js
+
+Make the index page (the one with all the dots and links to my other pages) look good on phones. I forget at what width it should change.
