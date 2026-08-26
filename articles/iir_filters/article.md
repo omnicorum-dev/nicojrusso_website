@@ -71,6 +71,8 @@ That's it! Note one important detail: **the $a$ coefficients are subtracted inst
 
 The biquad is capable of creating a truly wild number of different filter types simply by giving it different coefficients. (If working in an object-oriented programming language, I highly recommend creating a class that contains the difference equation as a function and can keep track of the 5 necessary samples worth of state!)
 
+Here is [my current biquad implementation in C++](https://github.com/omnicorum-dev/PluginDevCourse/blob/main/Templates_Materials/Classes/Biquad.h) if you're curious.
+
 Among these, the most common coefficient functions were written by Robert Bristow-Johnson, and are known as the **Audio EQ Cookbook**. Here is an interactive demo that shows all the different filters that the RBJ filters allow for and the different parameters they expose. Additionally, this should allow you to learn the names of these filters, hear how they sound, and how the parameters change the behaviour of the filter. We will be referring to these names and parameters a lot in the coming section. You might need to enable your ringer if viewing this on mobile.
 
 <RBJ Example>
@@ -191,3 +193,4 @@ Good luck, and try to find some other types of filters and implement them yourse
 ## References
 - [The RBJ Audio EQ Cookbook](https://webaudio.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html)
 - [Christopher Bennett - Digital Audio Theory](https://www.routledge.com/Digital-Audio-Theory-A-Practical-Guide/Bennett/p/book/9780367276539)
+- [My Biquad, RBJ, and LR4 Implementation](https://github.com/omnicorum-dev/PluginDevCourse/blob/main/Templates_Materials/Classes/Biquad.h)
