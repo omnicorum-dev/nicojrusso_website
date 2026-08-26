@@ -2,9 +2,11 @@
  * rbj_demo.js
  * =====================================================================
  * Interactive RBJ (Audio EQ Cookbook) biquad filter demo for the IIR
- * filters article. Hydrates the #rbj-demo-mount element inserted by
- * markdown_article.js (in place of the "EXAMPLE HERE" paragraph) once the
- * article HTML is in the DOM.
+ * filters article. Hydrates every [data-demo="rbj-example"] mount element
+ * inserted by markdown_article.js (in place of the "<RBJ Example>" tag in
+ * article.md) once the article HTML is in the DOM. See the DEMO_SLUG
+ * constant and the bottom of this file for how that wiring works, and
+ * markdown_article.js's top-of-file comment for the general tag mechanism.
  *
  * WHAT IT DOES: lets the reader pick an RBJ filter type from a dropdown,
  * drag sliders for frequency (f0) / Q / gain, watch a live frequency
@@ -49,6 +51,14 @@
 (function () {
     'use strict';
 
+    // Must match the tag written in article.md ("<RBJ Example>" -> slug
+    // "rbj-example" -- see markdown_article.js's extractDemoTags() for
+    // exactly how a tag turns into a slug) and the data-demo attribute that
+    // markdown_article.js's insertDemoMounts() puts on the mount <div>. If
+    // you copy this file to build a different demo, change this to match
+    // your own tag.
+    var DEMO_SLUG = 'rbj-example';
+
     // ---------------------------------------------------------------------
     // The 9 RBJ filter types this demo supports, in the order they appear
     // in the dropdown. `hasGain` controls whether the Gain slider is
@@ -77,7 +87,7 @@
     var FREQ_MIN = 20;     // Hz -- low end of human hearing
     var FREQ_MAX = 20000;  // Hz -- high end of human hearing
     var Q_MIN = 0.1;
-    var Q_MAX = 18;
+    var Q_MAX = 10;
     var GAIN_MIN = -24;    // dB, only used by Peaking/Low Shelf/High Shelf
     var GAIN_MAX = 24;     // dB
 
@@ -394,8 +404,8 @@
      * first load. Called once per page load, from the "article:rendered"
      * listener at the very bottom of this file.
      *
-     * `mount` is the <div id="rbj-demo-mount"> element created by
-     * markdown_article.js's insertDemoMounts().
+     * `mount` is one of the <div class="demo-mount" data-demo="rbj-example">
+     * elements created by markdown_article.js's insertDemoMounts().
      */
     function initDemo(mount) {
         var AudioContextClass = window.AudioContext || window.webkitAudioContext; // webkitAudioContext = old Safari
@@ -892,13 +902,16 @@
     }
 
     // Wait for markdown_article.js to finish rendering the article (and,
-    // with it, creating the #rbj-demo-mount div in place of the "EXAMPLE
-    // HERE" paragraph) before trying to hydrate the demo. If the mount
-    // point doesn't exist for some reason (e.g. someone removed the
-    // "EXAMPLE HERE" line from article.md entirely), this quietly does
-    // nothing rather than erroring.
+    // with it, creating a <div data-demo="rbj-example"> mount for every
+    // "<RBJ Example>" tag it found in article.md) before trying to hydrate
+    // the demo. querySelectorAll (rather than getElementById) means this
+    // works even if the tag is used more than once on the same page. If no
+    // mount exists for some reason (e.g. someone removed the "<RBJ Example>"
+    // tag from article.md entirely), this quietly does nothing rather than
+    // erroring.
     document.addEventListener('article:rendered', function () {
-        var mount = document.getElementById('rbj-demo-mount');
-        if (mount) initDemo(mount);
+        document.querySelectorAll('[data-demo="' + DEMO_SLUG + '"]').forEach(function (mount) {
+            initDemo(mount);
+        });
     });
 })();

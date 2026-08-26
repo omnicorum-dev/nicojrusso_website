@@ -11,38 +11,66 @@
  *   1. Reads the data-md-src attribute off the article element to find
  *      the markdown file to fetch (e.g. "/articles/iir_filters/article.md").
  *   2. Fetches that file as plain text.
- *   3. Pulls math ($...$ and $$...$$) out of the raw text BEFORE handing
- *      it to the markdown parser (see extractMath() for why).
- *   4. Runs the remaining text through marked.parse() to get HTML.
- *   5. Puts the math back in, rendered as KaTeX HTML (renderMathIntoHtml()).
- *   6. Injects the final HTML into the article element.
- *   7. Fixes up any relative image/link URLs so they resolve against the
+ *   3. Pulls out any custom demo tags (lines like "<RBJ Example>") BEFORE
+ *      handing the text to the markdown parser (see extractDemoTags()).
+ *   4. Pulls math ($...$ and $$...$$) out of the remaining raw text,
+ *      also before the markdown parser sees it (see extractMath() for why).
+ *   5. Runs the remaining text through marked.parse() to get HTML.
+ *   6. Puts the math back in, rendered as KaTeX HTML (renderMathIntoHtml()).
+ *   7. Injects the final HTML into the article element.
+ *   8. Fixes up any relative image/link URLs so they resolve against the
  *      markdown file's folder, not the page's own URL (resolveRelativeUrls()).
- *   8. Replaces a lone "EXAMPLE HERE" paragraph with a mount point a
- *      demo script can hydrate (insertDemoMounts()).
- *   9. Fires a custom "article:rendered" event on `document`, so any
+ *   9. Replaces each demo tag's placeholder with a mount <div> a demo
+ *      script can hydrate (insertDemoMounts()).
+ *  10. Fires a custom "article:rendered" event on `document`, so any
  *      demo script (e.g. rbj_demo.js) knows the article HTML now exists
- *      and it's safe to look for its mount point.
+ *      and it's safe to look for its mount point(s).
  *
  * TO REUSE THIS FOR A NEW ARTICLE: add
  *   <article data-md-src="/articles/your-article/article.md">...</article>
  * to a new page, and load this script the same way iir_filters.html does.
  * No changes needed here unless your new article needs different markdown
  * features than this file already supports.
+ *
+ * TO ADD A NEW DEMO TO AN ARTICLE'S MARKDOWN: write a tag by itself on its
+ * own line, with a blank line above and below it, e.g.:
+ *
+ *   Some paragraph of text.
+ *
+ *   <My Cool Demo>
+ *
+ *   More text after the demo.
+ *
+ * This gets turned into <div class="demo-mount" data-demo="my-cool-demo"
+ * id="demo-mount-0"></div> in the rendered page (see extractDemoTags() and
+ * insertDemoMounts() below for exactly how the tag text becomes the
+ * "my-cool-demo" slug). Your demo's JS file should then do:
+ *
+ *   document.addEventListener('article:rendered', function () {
+ *       document.querySelectorAll('[data-demo="my-cool-demo"]').forEach(function (mount) {
+ *           initMyDemo(mount);
+ *       });
+ *   });
+ *
+ * See rbj_demo.js for a full worked example (its DEMO_SLUG constant and the
+ * "<RBJ Example>" tag in articles/iir_filters/article.md).
  */
 (function () {
     'use strict';
 
-    // Placeholder tokens used to "hide" math from the markdown parser (see
-    // extractMath()/renderMathIntoHtml() below). These are deliberately
-    // plain alphanumeric text with no markdown-special characters, so
-    // marked.js will never mangle them (no underscores/asterisks/etc. that
-    // could be misread as emphasis, lists, etc.). If you ever see literal
-    // text like "zzMATHBLOCKzz3zzENDzz" show up on the page, it means a
-    // placeholder failed to get swapped back out -- see renderMathIntoHtml().
+    // Placeholder tokens used to "hide" math AND demo tags from the markdown
+    // parser (see extractMath()/extractDemoTags()/renderMathIntoHtml() below).
+    // These are deliberately plain alphanumeric text with no markdown-special
+    // characters, so marked.js will never mangle them (no underscores/
+    // asterisks/etc. that could be misread as emphasis, lists, etc.). If you
+    // ever see literal text like "zzMATHBLOCKzz3zzENDzz" or
+    // "zzDEMOTAGzz0zzENDzz" show up on the page, it means a placeholder
+    // failed to get swapped back out -- see renderMathIntoHtml() and
+    // insertDemoMounts().
     var MATH_BLOCK_TAG = 'zzMATHBLOCKzz';
     var MATH_INLINE_TAG = 'zzMATHINLINEzz';
-    var MATH_END_TAG = 'zzENDzz';
+    var DEMO_TAG_TAG = 'zzDEMOTAGzz';
+    var PLACEHOLDER_END_TAG = 'zzENDzz';
 
     /**
      * Pull $$...$$ (block/display math) and $...$ (inline math) spans out
@@ -72,7 +100,7 @@
         var text = source.replace(/\$\$([\s\S]+?)\$\$/g, function (match, tex) {
             var idx = store.length;
             store.push({ tex: tex.trim(), display: true });
-            return '\n\n' + MATH_BLOCK_TAG + idx + MATH_END_TAG + '\n\n';
+            return '\n\n' + MATH_BLOCK_TAG + idx + PLACEHOLDER_END_TAG + '\n\n';
         });
 
         // $ ... $ (single line only -- the [^\n$] means "no newlines, no
@@ -81,7 +109,7 @@
         text = text.replace(/\$([^\n$]+?)\$/g, function (match, tex) {
             var idx = store.length;
             store.push({ tex: tex.trim(), display: false });
-            return MATH_INLINE_TAG + idx + MATH_END_TAG;
+            return MATH_INLINE_TAG + idx + PLACEHOLDER_END_TAG;
         });
 
         return { text: text, store: store };
@@ -89,8 +117,8 @@
 
     /**
      * After marked.js has turned the (placeholder-containing) markdown into
-     * HTML, find every placeholder token in that HTML and replace it with
-     * real KaTeX-rendered math, using the `store` array built by
+     * HTML, find every math placeholder token in that HTML and replace it
+     * with real KaTeX-rendered math, using the `store` array built by
      * extractMath() to look up which LaTeX source each placeholder stands
      * for.
      *
@@ -98,7 +126,7 @@
      * `display: false` entries (from $...$) render inline with the text.
      */
     function renderMathIntoHtml(html, store) {
-        var pattern = new RegExp('(' + MATH_BLOCK_TAG + '|' + MATH_INLINE_TAG + ')(\\d+)' + MATH_END_TAG, 'g');
+        var pattern = new RegExp('(' + MATH_BLOCK_TAG + '|' + MATH_INLINE_TAG + ')(\\d+)' + PLACEHOLDER_END_TAG, 'g');
         return html.replace(pattern, function (match, prefix, idxStr) {
             var entry = store[Number(idxStr)];
             if (!entry) return match; // shouldn't happen, but don't crash if it does
@@ -165,39 +193,75 @@
     }
 
     /**
-     * Find a paragraph or heading whose ENTIRE text content is "EXAMPLE
-     * HERE" (case-insensitive, ignoring any bold/italic markup around it --
-     * e.g. the article's "***EXAMPLE HERE***" renders as
-     * <p><em><strong>EXAMPLE HERE</strong></em></p>, and el.textContent
-     * flattens that to just "EXAMPLE HERE" regardless of the nested tags)
-     * and swap it out for an empty <div id="rbj-demo-mount">.
+     * Find lines that are just a bare "<Some Demo Name>" tag -- alone on
+     * their own line, with nothing else on that line -- and pull them out
+     * of the raw markdown BEFORE marked.js sees them, the same way
+     * extractMath() pulls out LaTeX. Each match is replaced with an inert
+     * placeholder (so marked doesn't try to interpret "<...>" as an HTML
+     * tag) and recorded in `store` as { slug }, where `slug` is the tag
+     * text lowercased with spaces/underscores turned into hyphens (e.g.
+     * "<RBJ Example>" -> "rbj-example", "<My Cool Demo>" -> "my-cool-demo").
      *
-     * rbj_demo.js listens for the "article:rendered" event (fired at the
-     * end of renderArticle() below) and then looks for
-     * document.getElementById('rbj-demo-mount') to hydrate.
+     * This is intentionally generic -- it doesn't know what "RBJ Example"
+     * or any other demo actually is. It just recognizes the tag syntax and
+     * hands the slug to insertDemoMounts() below, which creates a mount
+     * point a demo script can find later via document.querySelectorAll
+     * ('[data-demo="rbj-example"]') (see the module doc-comment at the top
+     * of this file for the full how-to).
      *
-     * TO MOVE THE DEMO TO A DIFFERENT SPOT IN THE ARTICLE: just move the
-     * "***EXAMPLE HERE***" line to wherever you want it in article.md --
-     * this function will find it wherever it ends up.
+     * WRITING A TAG IN YOUR MARKDOWN: put it on its own line, with a blank
+     * line above and below (so it parses as its own paragraph), e.g.:
      *
-     * TO ADD A DIFFERENT DEMO TO A DIFFERENT ARTICLE: this function is
-     * currently hardcoded to look for the exact text "EXAMPLE HERE" and to
-     * create a mount point with id "rbj-demo-mount". If you want a
-     * differently-named placeholder/mount for a future article, you'd
-     * either generalize this function (e.g. read the desired placeholder
-     * text and mount id from a data-* attribute) or copy this whole file
-     * and adjust it for the new article.
+     *   <RBJ Example>
+     *
+     * The regex requires the whole line to be just "<Name>" (only letters,
+     * digits, spaces, hyphens, underscores inside the brackets) -- it will
+     * NOT match things like "<div>" mixed into other text, ordinary HTML
+     * you might paste into the markdown, or a tag with extra words after it
+     * on the same line.
      */
-    function insertDemoMounts(container) {
-        var placeholderPattern = /^example here$/i;
+    function extractDemoTags(source) {
+        var store = [];
+        var text = source.replace(/^[ \t]*<([A-Za-z][A-Za-z0-9 _-]*)>[ \t]*$/gm, function (match, name) {
+            var idx = store.length;
+            var slug = name.trim().toLowerCase().replace(/[\s_]+/g, '-');
+            store.push({ slug: slug });
+            return '\n\n' + DEMO_TAG_TAG + idx + PLACEHOLDER_END_TAG + '\n\n';
+        });
+        return { text: text, store: store };
+    }
+
+    /**
+     * After marked.js has turned the (placeholder-containing) markdown into
+     * HTML, find the paragraph/heading holding each demo-tag placeholder
+     * and swap it out for an empty mount <div>, e.g.
+     * <div class="demo-mount" data-demo="rbj-example" id="demo-mount-0">.
+     *
+     * A demo script listens for the "article:rendered" event (fired at the
+     * end of renderArticle() below) and then looks for
+     * document.querySelectorAll('[data-demo="its-own-slug"]') to hydrate
+     * every mount matching its slug -- see rbj_demo.js for a worked example.
+     * Using data-demo (instead of one hardcoded id, like the old
+     * "#rbj-demo-mount" approach) means this same mechanism supports any
+     * number of differently-named demos, and even more than one instance of
+     * the same demo, on a single page.
+     *
+     * `store` is the array returned by extractDemoTags() above.
+     */
+    function insertDemoMounts(container, store) {
+        var pattern = new RegExp('^' + DEMO_TAG_TAG + '(\\d+)' + PLACEHOLDER_END_TAG + '$');
         var nodes = container.querySelectorAll('p, h1, h2, h3, h4, h5, h6');
+        var mountCount = 0;
         nodes.forEach(function (el) {
-            if (placeholderPattern.test(el.textContent.trim())) {
-                var mount = document.createElement('div');
-                mount.id = 'rbj-demo-mount';
-                mount.className = 'demo-mount'; // styled in article_style.css (just a min-height placeholder)
-                el.replaceWith(mount);
-            }
+            var match = pattern.exec(el.textContent.trim());
+            if (!match) return;
+            var entry = store[Number(match[1])];
+            if (!entry) return;
+            var mount = document.createElement('div');
+            mount.id = 'demo-mount-' + mountCount++;
+            mount.className = 'demo-mount'; // styled in article_style.css (just a min-height placeholder)
+            mount.setAttribute('data-demo', entry.slug);
+            el.replaceWith(mount);
         });
     }
 
@@ -224,7 +288,11 @@
                     throw new Error('marked library did not load');
                 }
 
-                var extracted = extractMath(raw);
+                // Demo tags are extracted first, then math, so a demo tag
+                // sharing a line-shape with math (unlikely, but not
+                // impossible) can't confuse either extractor.
+                var demoExtracted = extractDemoTags(raw);
+                var mathExtracted = extractMath(demoExtracted.text);
 
                 // gfm: true enables GitHub-flavored markdown extras (tables,
                 // strikethrough, autolinking bare URLs, etc.). breaks: false
@@ -232,15 +300,15 @@
                 // <br> -- you need a blank line for a new paragraph, which is
                 // standard markdown behavior and matches how article.md is written.
                 window.marked.setOptions({ gfm: true, breaks: false });
-                var html = window.marked.parse(extracted.text);
-                html = renderMathIntoHtml(html, extracted.store);
+                var html = window.marked.parse(mathExtracted.text);
+                html = renderMathIntoHtml(html, mathExtracted.store);
 
                 container.innerHTML = html;
                 resolveRelativeUrls(container, baseDir);
-                insertDemoMounts(container);
+                insertDemoMounts(container, demoExtracted.store);
 
                 // Let any demo script know the article HTML (and its mount
-                // point, if any) now exists in the DOM.
+                // point(s), if any) now exist in the DOM.
                 document.dispatchEvent(new CustomEvent('article:rendered', {
                     detail: { container: container }
                 }));
