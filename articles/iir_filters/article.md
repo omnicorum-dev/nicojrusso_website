@@ -2,7 +2,7 @@
 
 ## Introduction
 
-I have found that audio filtering is a topic that many people have heard of, and they might think they have an idea of how it works, but seldom actually do. Those who are familiar with programming and have perhaps dabbled with audio programming before may reach for FFT to do this sort of frequency-dependent processing, but this is overkill and introduces far more latency and processing overhead than is actually needed for this task.
+I have found that audio filtering is a topic that many people have heard of, and they might think they have an idea of how it works, but seldom actually do. Those who are familiar with programming and have perhaps dabbled with audio programming before may reach for FFT to do this sort of frequency-dependent processing, but this is generally overkill for simple filters and introduces far more latency and processing overhead than is actually needed for this task.
 
 The method that is commonly used for filtering audio in realtime is called **Infinite Impulse Response filtering**, or **IIR filtering** for short. This article aims to give a guide to what IIR filtering is, how to interpret the often poorly explained names and symbols used, and how to create the most commonly used IIR filters.
 
@@ -24,7 +24,7 @@ Filters are a specific kind of process applied to audio called an **effect**. Ef
 
 *When writing effects practically, you commonly write the output sample back into the input buffer you were given. Because of this, additional state is often required to remember previous inputs after they are overwritten.*
 
-Effects, therefore, are commonly written as a *difference equation*, which is written as $y[n] = ...$. The left side is always $y[n]$, which refers to "the output of the current sample, $x[n]$, that we are processing." The right side of the equation commonly contains manipulations of $x[n]$.
+Effects, therefore, are commonly written as a *difference equation*, which is written as $y[n] = ...$. The left side is y[n], the output sample currently being calculated. The right side describes how that output is calculated from the current and previous input and output samples.
 
 Finally, with all that out of the way, we can get into specifics!
 
@@ -37,19 +37,19 @@ The key insight that allows IIRs to function is that we can use *previous inputs
 Let's start with the difference equation for an IIR filter and work our way back from there:
 
 $$
-y[n]=\Sigma^P_{i=0}b_ix[n-i] + \Sigma^Q_{i=1}a_iy[n-i]
+y[n]=\frac{1}{a_0}\left(\Sigma^P_{i=0}b_ix[n-i] + \Sigma^Q_{i=1}a_iy[n-i]\right)
 $$
 
 I know it looks horrendous. I actually find it more helpful to look at this in an expanded view rather than as $\Sigma$-style summations.
 
 $$
-y[n]= ( b_0x[n] + b_1x[n-1] + ... + b_Px[n-P]) 
+y[n]= \frac{1}{a_0}[( b_0x[n] + b_1x[n-1] + ... + b_Px[n-P]) 
 $$
 $$
-+ (a_1y[n-1]+a_2y[n-2]+...+a_Qy[n-Q])
+- (a_1y[n-1]+a_2y[n-2]+...+a_Qy[n-Q])]
 $$
 
-The section on the left is our *feed-forward* portion, and is a sum of previous *input* samples, each multiplied by its own coefficient $b$. Notably, this *includes* the current sample, which gets its own $b_0$. The section on the right is our *feedback* portion, and is a sum of previous *output* samples, each multiplied by its own coefficient $a$. Notably, this does NOT include the current output sample, as that's what we're solving for!
+The section with $b$s and $x$s is our *feed-forward* portion, and is a sum of *input* samples, each multiplied by its own coefficient $b$. Notably, this *includes* the current sample, which gets its own $b_0$. The section with $a$s and $y$s is our *feedback* portion, and is a sum of previous *output* samples, each multiplied by its own coefficient $a$. Notably, this section does NOT include the current output sample. The coefficient of $y[n]$ is $a_0$, and is divided through by in order to keep $y[n]$ on its own.
 
 $P$ in this case refers to what is called the *feed-forward order*, and $Q$ is called the *feedback order*. As mentioned previously, this is why we'll need to retain a little bit of extra state! You need to store $x[n-1], x[n-2], ..., y[n-1], y[n-2], ...,$ etc.
 
@@ -69,7 +69,7 @@ $$
 
 That's it! Note one important detail: **the $a$ coefficients are subtracted instead of added**. This is simply a convention used by the coefficient formulas we'll be using, and makes calculating those coefficients slightly easier.
 
-The biquad is capable of creating a truly wild number of different filter types simply by giving it different coefficients. (If working in an object-oriented programming language, I highly recommend creating a class that contains the difference equation as a function and can keep track of the 5 necessary samples worth of state!)
+The biquad is capable of creating a truly wild number of different filter types simply by giving it different coefficients. (If working in an object-oriented programming language, I highly recommend creating a class that contains the difference equation as a function and can keep track of the 4 necessary samples of state: $x[n-1], x[n-2], y[n-1], y[n-2]$)
 
 Here is [my current biquad implementation in C++](https://github.com/omnicorum-dev/PluginDevCourse/blob/main/Templates_Materials/Classes/Biquad.h) if you're curious.
 
