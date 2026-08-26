@@ -30,7 +30,7 @@ Finally, with all that out of the way, we can get into specifics!
 
 ## IIR Filtering
 
-IIR filters are defined roughly as "a linear time-invariant system that is distinguished by having an impulse response $h(t)$ that does not become exactly zero past a certain point but continues indefinitely."[1] I find this explanation... less than enlightening.
+IIR filters are defined roughly as "a linear time-invariant system that is distinguished by having an impulse response $h(t)$ that does not become exactly zero past a certain point but continues indefinitely." I find this explanation... less than enlightening.
 
 The key insight that allows IIRs to function is that we can use *previous inputs* **and previous outputs** to affect our input signal. Previous inputs contributing is known as *feed-forward*, and previous outputs contributing are known as *feedback*. These previous samples are referred to by offsetting the index of the signal. For example, the previous input sample is referred to as $x[n-1]$, and the previous output is $y[n-1]$.
 
@@ -43,7 +43,10 @@ $$
 I know it looks horrendous. I actually find it more helpful to look at this in an expanded view rather than as $\Sigma$-style summations.
 
 $$
-y[n]= ( b_0x[n] + b_1x[n-1] + ... + b_Px[n-P] ) + (a_1y[n-1]+a_2y[n-2]+...+a_Qy[n-Q])
+y[n]= ( b_0x[n] + b_1x[n-1] + ... + b_Px[n-P]) 
+$$
+$$
++ (a_1y[n-1]+a_2y[n-2]+...+a_Qy[n-Q])
 $$
 
 The section on the left is our *feed-forward* portion, and is a sum of previous *input* samples, each multiplied by its own coefficient $b$. Notably, this *includes* the current sample, which gets its own $b_0$. The section on the right is our *feedback* portion, and is a sum of previous *output* samples, each multiplied by its own coefficient $a$. Notably, this does NOT include the current output sample, as that's what we're solving for!
