@@ -67,7 +67,7 @@ $$
 y[n] = \frac{1}{a_0}\left(b_0x[n] + b_1x[n-1] + b_2x[n-2] - a_1y[n-1] - a_2y[n-2]\right)
 $$
 
-That's it! Note one important detail: **the $a$ coefficients are subtracted instead of added**. This is simply a convention used by the coefficient formulas we'll be using, and makes calculating those coefficients slightly easier.
+That's it! As a brief note, I've distributed the $-$ into the feedback portion just for cleanliness.
 
 The biquad is capable of creating a truly wild number of different filter types simply by giving it different coefficients. (If working in an object-oriented programming language, I highly recommend creating a class that contains the difference equation as a function and can keep track of the 4 necessary pieces of state: $x[n-1], x[n-2], y[n-1], y[n-2]$)
 
