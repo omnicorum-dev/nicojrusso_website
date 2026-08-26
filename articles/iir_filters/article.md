@@ -37,10 +37,10 @@ The key insight that allows IIRs to function is that we can use *previous inputs
 Let's start with the difference equation for an IIR filter and work our way back from there:
 
 $$
-y[n]=\frac{1}{a_0}\left(\Sigma^P_{i=0}b_ix[n-i] + \Sigma^Q_{i=1}a_iy[n-i]\right)
+y[n]=\frac{1}{a_0}\left(\sum^P_{i=0}b_ix[n-i] - \sum^Q_{i=1}a_iy[n-i]\right)
 $$
 
-I know it looks horrendous. I actually find it more helpful to look at this in an expanded view rather than as $\Sigma$-style summations.
+I know it looks horrendous. I actually find it more helpful to look at this in an expanded view rather than as $\sum$-style summations.
 
 $$
 y[n]= \frac{1}{a_0}[( b_0x[n] + b_1x[n-1] + ... + b_Px[n-P]) 
@@ -49,11 +49,11 @@ $$
 - (a_1y[n-1]+a_2y[n-2]+...+a_Qy[n-Q])]
 $$
 
-The section with $b$s and $x$s is our *feed-forward* portion, and is a sum of *input* samples, each multiplied by its own coefficient $b$. Notably, this *includes* the current sample, which gets its own $b_0$. The section with $a$s and $y$s is our *feedback* portion, and is a sum of previous *output* samples, each multiplied by its own coefficient $a$. Notably, this section does NOT include the current output sample. The coefficient of $y[n]$ is $a_0$, and is divided through by in order to keep $y[n]$ on its own.
+The section with $b$s and $x$s is our *feed-forward* portion, and is a sum of *input* samples, each multiplied by its own coefficient $b$. Notably, this *includes* the current sample, which gets its own $b_0$. The section with $a$s and $y$s is our *feedback* portion, and is a sum of previous *output* samples, each multiplied by its own coefficient $a$. Notably, this section does NOT include the current output sample. The coefficient of $y[n]$ is $a_0$, but I divided the equation by $a_0$ in order to isolate $y[n]$.
 
 $P$ in this case refers to what is called the *feed-forward order*, and $Q$ is called the *feedback order*. As mentioned previously, this is why we'll need to retain a little bit of extra state! You need to store $x[n-1], x[n-2], ..., y[n-1], y[n-2], ...,$ etc.
 
-Why might we need to store the previous outputs? This is a bit more technical, and I will probably write more on audio buffer behaviour in the future, but when we get a new batch of input samples to overwrite with new outputs, we won't have the previous outputs anymore! They've been shipped off to the sound card already.
+Why might we need to store the previous outputs? This is a bit more technical, and I will probably write more on audio buffer behaviour in the future... The buffer contains audio data. The filter's state is the information that must survive from one processing call to the next. Previous outputs can *happen* to exist in the buffer, but they should **not** be relied upon as filter state.
 
 For those interested, the reason that these are called "Infinite Impulse Response" filters is because when you send an impulse (a single sample 1, followed by an infinite number of 0s), the resulting output will never fully reach 0. This is a result of the feedback component. Of course, in reality, computers do not have infinite precision, and so eventually (and often quite quickly) values will taper below what is effectively representable.
 
@@ -69,7 +69,7 @@ $$
 
 That's it! Note one important detail: **the $a$ coefficients are subtracted instead of added**. This is simply a convention used by the coefficient formulas we'll be using, and makes calculating those coefficients slightly easier.
 
-The biquad is capable of creating a truly wild number of different filter types simply by giving it different coefficients. (If working in an object-oriented programming language, I highly recommend creating a class that contains the difference equation as a function and can keep track of the 4 necessary samples of state: $x[n-1], x[n-2], y[n-1], y[n-2]$)
+The biquad is capable of creating a truly wild number of different filter types simply by giving it different coefficients. (If working in an object-oriented programming language, I highly recommend creating a class that contains the difference equation as a function and can keep track of the 4 necessary pieces of state: $x[n-1], x[n-2], y[n-1], y[n-2]$)
 
 Here is [my current biquad implementation in C++](https://github.com/omnicorum-dev/PluginDevCourse/blob/main/Templates_Materials/Classes/Biquad.h) if you're curious.
 
