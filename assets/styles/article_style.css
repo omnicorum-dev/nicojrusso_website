@@ -1,0 +1,329 @@
+/* =====================================================================
+   article_style.css
+   =====================================================================
+   Shared styling for long-form technical article pages (currently just
+   iir_filters.html, but written generically so any future article that
+   reuses markdown_article.js can link this same stylesheet).
+
+   Everything the reader sees INSIDE the article card (headings, paragraphs,
+   links, code, math, images, etc.) is styled under the ".article-content"
+   selector, because that's the id/class of the <article> element that
+   markdown_article.js fills with the rendered markdown. If you add a new
+   kind of markdown element and it looks unstyled, it's because there's no
+   ".article-content <tag>" rule for it yet below -- add one.
+
+   Color palette reference (matches the rest of nicojrusso.com):
+     #200019 / #150011  -- dark maroon background (site brand color)
+     #ff0844 -> #ffb199 -- pink-to-peach gradient used for headings/accents
+     #eee6ea / #f4e9ef  -- off-white body text (avoids pure white glare)
+   ===================================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ---- page background ----
+   A dark gradient background for the whole page (not just the article
+   card). The two radial-gradients add soft colored glows in the corners;
+   the linear-gradient underneath is the base dark-to-darker fade. */
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Roboto', sans-serif;
+    color: #eee6ea;
+    background-color: #150011;
+    background-image:
+        /* radial-gradient(circle at 15% 0%, rgba(255, 8, 68, 0.16), transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(255, 177, 153, 0.10), transparent 40%), */
+        linear-gradient(180deg, #03001a 0%, #000612 45%, #0b000a 100%);
+    background-attachment: fixed; /* gradient stays put while the page scrolls */
+    overflow-x: hidden;
+}
+
+/* ---- top nav: just the "← nicojrusso.com" back link ---- */
+
+.article-nav {
+    padding: 1.25rem 1.5rem;
+}
+
+.article-nav__home {
+    color: #92bae0;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    transition: color 0.2s ease;
+}
+
+.article-nav__home:hover {
+    color: #ff8177;
+}
+
+/* ---- shell / overall layout ----
+   .article-shell centers everything and caps the reading width at 780px
+   (a comfortable line length for body text). Bump max-width here if you
+   want a wider article layout. */
+
+.article-shell {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 4rem;
+}
+
+/* ---- title block above the article card ---- */
+
+.article-header {
+    text-align: center;
+    padding: 1.5rem 0 2.5rem;
+}
+
+.article-kicker {
+    /* Small "Article" label above the title. */
+    margin: 0 0 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.75rem;
+    color: #578bbe;
+}
+
+.article-title {
+    margin: 0 0 0.75rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4.5vw, 2.6rem); /* scales with viewport, min 1.8rem, max 2.6rem */
+    line-height: 1.25;
+    /* Pink-to-peach gradient text effect (same trick used on nicojrusso.com's
+       homepage logo): fill the text with a gradient background clipped to
+       the text shape, then make the actual text color transparent so the
+       gradient shows through. */
+    background-color: #fcfcfc;
+    background-image: linear-gradient(to right, #9fa8f8 0%, #86a9ff 100%);
+    background-size: 100%;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -moz-text-fill-color: transparent;
+}
+
+.article-meta {
+    /* line under the title. */
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    color: #a4a8b8;
+    font-size: 0.9rem;
+}
+
+/* ---- the article content card itself ----
+   This is the semi-transparent rounded panel that holds the rendered
+   markdown. backdrop-filter gives it a subtle frosted-glass look over the
+   page's gradient background. */
+
+.article-content {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 18px;
+    padding: clamp(1.25rem, 4vw, 3rem); /* more padding on wide screens */
+    backdrop-filter: blur(6px);
+    line-height: 1.75; /* generous line height for long-form reading */
+    font-size: 1.05rem;
+    /* Serif body copy for readability -- headings, nav/kicker/meta/footer,
+       code, and KaTeX math all set their own font-family further down (or
+       in rbj_demo.css), so this only actually applies to paragraphs, lists,
+       links, etc. Georgia/Times New Roman are the fallback if Lora hasn't
+       loaded yet (or fails to load). */
+    font-family: 'Lora', Georgia, 'Times New Roman', serif;
+}
+
+/* Shown briefly while article.md is still being fetched, or permanently if
+   the fetch/render fails (see markdown_article.js's catch block). */
+.article-loading,
+.article-error {
+    color: #ad5c69;
+    font-style: italic;
+}
+
+/* ---- typography for rendered markdown elements ----
+   marked.js turns "# Heading" into <h1>, "**bold**" into <strong>, etc.
+   Everything below just styles those standard HTML tags as they appear
+   inside .article-content. */
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+    font-family: 'Montserrat', sans-serif;
+    color: #ffc9c9;
+    line-height: 1.3;
+    margin: 2.2em 0 0.8em; /* lots of breathing room above each heading */
+}
+
+.article-content h1:first-child,
+.article-content h2:first-child {
+    margin-top: 0; /* don't add extra space above the very first heading */
+}
+
+.article-content h2 {
+    font-size: 1.5rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12); /* underline divider */
+}
+
+.article-content p {
+    margin: 0 0 1.2em;
+}
+
+.article-content ul,
+.article-content ol {
+    margin: 0 0 1.2em;
+    padding-left: 1.4em;
+}
+
+.article-content li {
+    margin-bottom: 0.4em;
+}
+
+.article-content a {
+    color: #ff8177;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 129, 119, 0.4); /* faint underline, brightens on hover */
+    text-underline-offset: 2px;
+}
+
+.article-content a:hover {
+    color: #ffb199;
+}
+
+.article-content strong {
+    color: #fff; /* bold text pops brighter than the body color */
+}
+
+.article-content em {
+    color: #ffe3d8;
+}
+
+.article-content hr {
+    /* Markdown "---" horizontal rules, used as section dividers. */
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    margin: 2.5em 0;
+}
+
+.article-content blockquote {
+    margin: 1.4em 0;
+    padding: 0.6em 1.2em;
+    border-left: 3px solid #ff8177;
+    background: rgba(255, 255, 255, 0.03);
+    color: #ddc9d6;
+}
+
+/* Inline `code` spans (single backticks in markdown). */
+.article-content code {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    font-size: 0.92em;
+}
+
+/* Fenced ```code blocks``` in markdown. overflow-x:auto lets long lines
+   scroll horizontally instead of breaking the page layout on mobile. */
+.article-content pre {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 1em 1.2em;
+    overflow-x: auto;
+    margin: 0 0 1.2em;
+}
+
+.article-content pre code {
+    /* Undo the inline-code styling above so it doesn't double up inside <pre>. */
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* Images/SVGs referenced from the markdown, e.g. ![caption](diagram.svg).
+   markdown_article.js rewrites relative paths so these resolve against the
+   articles/iir_filters/ folder -- just drop image files in there and
+   reference them by filename in article.md. */
+.article-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.8em auto; /* center images with space above/below */
+    border-radius: 10px;
+}
+/* NOTE: deliberately NOT ".article-content svg" here -- KaTeX renders the
+   square-root sign as a bare <svg>, and styling all svgs generically broke
+   it (see the long comment above this rule). If you ever embed a raw
+   <svg>...</svg> diagram directly in article.md (rather than a normal
+   ![alt](file.svg) image), give it its own class in the markdown's raw
+   HTML and style that class specifically instead of reintroducing a bare
+   ".article-content svg" rule. */
+
+/* Markdown doesn't have native figure/caption syntax, but if you write raw
+   HTML <figure>/<figcaption> tags directly in article.md, marked will pass
+   them through untouched and these rules will style them. */
+.article-content figure {
+    margin: 1.8em 0;
+    text-align: center;
+}
+
+.article-content figcaption {
+    margin-top: 0.6em;
+    font-size: 0.85rem;
+    color: #b8a4b3;
+}
+
+/* ---- math (KaTeX) ----
+   KaTeX renders each $...$/$$...$$ span as a <span class="katex">...
+   (inline) or wraps it in <span class="katex-display"> (block, from $$).
+   These two rules just make the math color-match the surrounding dark
+   theme and prevent wide equations from overflowing on narrow screens. */
+
+.article-content .katex {
+    font-size: 1.05em;
+    color: #e9ecf4;
+}
+
+.article-content .katex-display {
+    overflow-x: auto;  /* let wide equations scroll instead of clipping/wrapping badly */
+    overflow-y: hidden;
+    padding: 0.4em 0;
+    margin: 1.4em 0;
+}
+
+/* ---- demo mount placeholder ----
+   Before rbj_demo.js hydrates it, the "EXAMPLE HERE" mount point is just an
+   empty div with this class -- give it a little height so the page doesn't
+   visibly "jump" once the JS demo widget pops in. Once hydrated, rbj_demo.js
+   replaces this class with "rbj-demo" (styled in rbj_demo.css instead). */
+.demo-mount {
+    min-height: 120px;
+}
+
+/* ---- footer ---- */
+
+.article-footer {
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    color: #7c6a76;
+    font-size: 0.8rem;
+    padding: 1rem 0 2.5rem;
+}
+
+/* ---- small-screen tweaks ---- */
+@media (max-width: 640px) {
+    .article-content {
+        border-radius: 12px;
+        font-size: 1rem;
+    }
+}

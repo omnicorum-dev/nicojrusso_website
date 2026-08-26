@@ -1,0 +1,115 @@
+<!--
+    IIR Filters article page.
+
+    This page itself is mostly a shell: nav / header / footer chrome plus one
+    empty <article> element. The actual article body gets filled in at runtime
+    by JavaScript (see the <script> tags at the bottom), which:
+      1. fetches articles/iir_filters/article.md as plain text,
+      2. converts it to HTML with the "marked" markdown library,
+      3. typesets any $...$ / $$...$$ math with KaTeX,
+      4. finds the "EXAMPLE HERE" placeholder paragraph from the markdown and
+         replaces it with the interactive RBJ filter demo.
+
+    Why do it this way instead of just writing plain HTML? Because the article
+    content lives in a single markdown file (articles/iir_filters/article.md)
+    that's easy to edit without touching any HTML/CSS/JS -- just edit the
+    markdown, save, and reload the page.
+
+    TO EDIT THE ARTICLE TEXT: edit articles/iir_filters/article.md, not this file.
+    TO EDIT THE PAGE CHROME (title, nav, footer, fonts): edit this file.
+    TO EDIT THE LOOK OF THE RENDERED ARTICLE: edit assets/styles/article_style.css.
+    TO EDIT THE INTERACTIVE DEMO: edit assets/apps/rbj_demo.js (+ rbj_demo.css).
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Browser tab title and search-result description. -->
+    <title>A Practical Guide to Digital Audio Filters — Nico Russo</title>
+    <meta name="description" content="A practical guide to IIR filtering and the RBJ biquad cookbook, with an interactive filter demo you can hear and see.">
+
+    <!-- Site favicon, same one used across nicojrusso.com. -->
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+
+    <!-- Google Fonts: Montserrat for headings/titles/nav/copyright, Lora (serif) for the
+         article's main body text, Roboto for small bits of UI chrome (the demo's dropdown,
+         canvas axis labels) -- see article_style.css / rbj_demo.css for where each is used. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <!--
+        KaTeX stylesheet: renders the math typography ($f_0$, the difference
+        equation, etc.). Pulled from a CDN (jsdelivr) rather than bundled
+        locally, since this is a plain static site with no build step.
+        IMPORTANT: this version number (0.18.4) must match the katex.min.js
+        version loaded near the bottom of the page, or things can break.
+    -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css">
+
+    <!-- Our own stylesheets: general article look, then the demo widget's look. -->
+    <link rel="stylesheet" href="/assets/styles/article_style.css">
+    <link rel="stylesheet" href="/assets/styles/rbj_demo.css">
+</head>
+<body>
+
+    <!-- Tiny top bar with just a "back to home" link. -->
+    <nav class="article-nav">
+        <a class="article-nav__home" href="/">← nicojrusso.com</a>
+    </nav>
+
+    <main class="article-shell">
+
+        <!-- Title block above the article card. Edit the date/author here directly. -->
+        <header class="article-header">
+            <h1 class="article-title">A Practical Guide to Digital Audio Filters</h1>
+            <p class="article-meta">Nico Russo (Omnicorum) · August 2026</p>
+        </header>
+
+        <!--
+            This is the mount point markdown_article.js looks for (it searches
+            the page for any element with a data-md-src attribute). Whatever is
+            inside it right now ("Loading article…") is only shown briefly
+            before JS replaces it with the rendered markdown. If JS fails to
+            load or the fetch fails, an error message replaces this instead.
+
+            data-md-src points at the actual markdown file. Change this if you
+            ever move/rename article.md.
+        -->
+        <article id="article-content" class="article-content" data-md-src="/articles/iir_filters/article.md">
+            <p class="article-loading">Loading article…</p>
+        </article>
+
+    </main>
+
+    <footer class="article-footer">
+        <p>Copyright © 2026 Nico Russo</p>
+    </footer>
+
+    <!--
+        Script load order matters here because everything below uses `defer`,
+        which guarantees these run in this exact order (after the HTML is
+        parsed, before DOMContentLoaded fires):
+
+          1. marked      -- turns markdown text into HTML.
+          2. katex       -- turns LaTeX strings into typeset math HTML.
+          3. markdown_article.js -- fetches article.md, calls marked + katex,
+                             injects the resulting HTML, and fires an
+                             "article:rendered" event on `document` when done.
+          4. rbj_demo.js -- generic on load, but waits for "article:rendered"
+                             before it tries to build the interactive demo
+                             (since the demo's mount point doesn't exist in the
+                             DOM until markdown_article.js creates it).
+
+        If you ever want to bump the marked/katex versions, change BOTH the
+        version number in the URL below AND in the katex.min.css link above.
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.js" defer></script>
+    <script src="/assets/apps/markdown_article.js" defer></script>
+    <script src="/assets/apps/rbj_demo.js" defer></script>
+
+</body>
+</html>

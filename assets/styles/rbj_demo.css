@@ -1,0 +1,183 @@
+/* =====================================================================
+   rbj_demo.css
+   =====================================================================
+   Styling for the interactive RBJ biquad filter demo (built by
+   assets/apps/rbj_demo.js). This widget is the thing that replaces the
+   "EXAMPLE HERE" paragraph in the article.
+
+   Layout structure this file styles (see rbj_demo.js's buildControlsHtml()
+   for the actual HTML it generates):
+
+     .rbj-demo                      <- outer card
+       .rbj-demo__controls          <- responsive grid of controls
+         .rbj-control-group         <- one labeled control (select/slider)
+           #rbj-gain-group            (has extra class "rbj-gain-hidden"
+                                        when the current filter type has no
+                                        gain parameter, e.g. Low-Pass)
+         .rbj-transport              <- play button + volume slider row
+           .rbj-play-btn
+       .rbj-demo__graph              <- dark box around the <canvas> plot
+       .rbj-coeffs                   <- collapsible <details> showing b/a values
+   ===================================================================== */
+
+/* ---- outer card ---- */
+.rbj-demo {
+    margin: 1.5em 0 2em;
+    padding: clamp(1rem, 3vw, 1.75rem);
+    background: rgba(95, 104, 139, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+/* Shown instead of the whole widget if the browser has neither AudioContext
+   support at all (very old/unusual browsers) -- see rbj_demo.js's initDemo(). */
+.rbj-demo__unsupported {
+    color: #a95c64;
+    font-style: italic;
+}
+
+/* ---- controls grid ----
+   auto-fit + minmax means: fit as many ~190px-or-wider columns as the
+   available width allows, and let them grow to fill leftover space. On a
+   narrow phone this collapses to a single column (see the media query at
+   the bottom of this file, which forces that below 480px). */
+.rbj-demo__controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1rem 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+/* One control = a label on top, the actual <select>/<input type=range> below. */
+.rbj-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.rbj-control-group label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    color: #99bdff;
+    text-transform: uppercase;
+}
+
+.rbj-control-group select {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.95rem;
+    padding: 0.5em 0.6em;
+    border-radius: 8px;
+    border: 1px solid rgba(133, 150, 209, 0.18);
+    background: #1c0018;
+    color: #f4e9ef;
+}
+
+.rbj-control-group input[type="range"] {
+    width: 100%;
+    accent-color: #5fb2ff; /* colors the slider thumb/track in supporting browsers */
+}
+
+/* Applied by JS (rbj_demo.js's updateFilter()) to the Gain control group
+   whenever the selected filter type doesn't use a gain parameter (every
+   type except Peaking/Low Shelf/High Shelf). Dims it and disables clicks
+   rather than hiding it outright, so the layout doesn't jump around every
+   time you switch filter types. */
+.rbj-control-group.rbj-gain-hidden {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+/* ---- transport row: play button + volume slider ----
+   grid-column: 1 / -1 makes this row span every column in the grid above,
+   instead of sitting in its own single grid cell. */
+.rbj-transport {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+}
+
+.rbj-play-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #fff;
+    border: none;
+    border-radius: 10px; /* pill shape */
+    padding: 0.6em 1.4em;
+    cursor: pointer;
+    background-color: #45629d;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rbj-play-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(255, 8, 68, 0.35);
+}
+
+.rbj-play-btn:active {
+    transform: translateY(0);
+}
+
+.rbj-volume-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    color: #b8a4b3;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.rbj-transport input[type="range"] {
+    max-width: 140px; /* keep the volume slider from stretching too wide */
+}
+
+/* ---- frequency response graph ----
+   The dark box around the <canvas>. The canvas itself is drawn/resized
+   entirely in JS (see rbj_demo.js's drawResponse()) -- this CSS just
+   controls its display size; JS reads canvas.clientWidth/clientHeight to
+   figure out how many device pixels to actually render at. */
+.rbj-demo__graph {
+    background: #0d0009;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 0.5rem;
+}
+
+.rbj-demo__graph canvas {
+    display: block;
+    width: 100%;
+    height: 300px; /* change this to resize the graph; JS picks it up automatically on next redraw/resize */
+}
+
+/* ---- coefficients readout (<details>/<summary>) ---- */
+.rbj-coeffs {
+    margin-top: 1rem;
+    color: #ddc9d6;
+    font-size: 0.85rem;
+}
+
+.rbj-coeffs summary {
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    color: #99c2ff;
+}
+
+.rbj-coeffs pre {
+    margin: 0.6em 0 0;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 0.8em 1em;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 0.82rem;
+}
+
+/* ---- small-screen tweaks: force controls into a single column ---- */
+@media (max-width: 480px) {
+    .rbj-demo__controls {
+        grid-template-columns: 1fr;
+    }
+}
