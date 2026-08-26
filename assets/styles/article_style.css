@@ -125,18 +125,13 @@ body {
    page's gradient background. */
 
 .article-content {
-    background: rgba(255, 255, 255, 0.04);
+    /*background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 18px;
-    padding: clamp(1.25rem, 4vw, 3rem); /* more padding on wide screens */
+    border-radius: 18px;*/
+    padding: clamp(1.25rem, 4vw, 3rem);
     backdrop-filter: blur(6px);
-    line-height: 1.75; /* generous line height for long-form reading */
+    line-height: 1.75;
     font-size: 1.05rem;
-    /* Serif body copy for readability -- headings, nav/kicker/meta/footer,
-       code, and KaTeX math all set their own font-family further down (or
-       in rbj_demo.css), so this only actually applies to paragraphs, lists,
-       links, etc. Georgia/Times New Roman are the fallback if Lora hasn't
-       loaded yet (or fails to load). */
     font-family: 'Lora', Georgia, 'Times New Roman', serif;
 }
 

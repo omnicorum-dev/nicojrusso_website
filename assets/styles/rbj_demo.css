@@ -24,7 +24,7 @@
 .rbj-demo {
     margin: 1.5em 0 2em;
     padding: clamp(1rem, 3vw, 1.75rem);
-    background: rgba(95, 104, 139, 0.28);
+    background: rgba(172, 186, 241, 0.022);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 5px;
 }
