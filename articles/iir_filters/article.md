@@ -77,6 +77,8 @@ The section with $b$s and $x$s is our *feed-forward* portion, and is a sum of *i
 
 $P$ in this case refers to what is called the *feed-forward order*, and $Q$ is called the *feedback order*. As mentioned previously, this is why we'll need to retain a little bit of extra state! You need to store $x[n-1], x[n-2], ..., y[n-1], y[n-2], ...,$ etc.
 
+*WARNING: These next two paragraphs are some technical mumbo jumbo. If you like that kind of stuff, feel free to read.*
+
 Why might we need to store the previous outputs? This is a bit more technical, and I will probably write more on audio buffer behaviour in the future... The buffer contains audio data. The filter's state is the information that must survive from one processing call to the next. Previous outputs can *happen* to exist in the buffer, but they should **not** be relied upon as filter state.
 
 For those interested, the reason that these are called "Infinite Impulse Response" filters is because when you send an impulse (a single sample 1, followed by an infinite number of 0s), the resulting output will never fully reach 0. This is a result of the feedback component. Of course, in reality, computers do not have infinite precision, and so eventually (and often quite quickly) values will taper below what is effectively representable.
