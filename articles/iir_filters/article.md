@@ -31,6 +31,9 @@ Effects, therefore, are commonly written as a *difference equation*, which is wr
 // this does nothing to the input signal,
 // but shows the general structure of effect processing.
 
+float xnm1 = 0; // previous input sample
+float ynm1 = 0; // previous output sample
+
 void process(float* x, int buffer_size)
 {
     for (int n = 0; n < buffer_size; ++n)
@@ -40,6 +43,9 @@ void process(float* x, int buffer_size)
         float yn = xn; // calculate the output
 
         x[n] = yn; // put the output back into the buffer
+
+        xnm1 = xn; // save values for use later
+        ynm1 = yn;
     }
 }
 ```
