@@ -22,26 +22,9 @@ $$
 
 Filters are a specific kind of process applied to audio called an **effect**. Effects are distinct from **generators** (such as oscillators) in that effects have an input signal (commonly $x[]$) and an output signal (commonly $y[]$). Generators only have an output signal. Other examples of effects are reverb, distortion, compression, etc.
 
-*Technical Note: When writing effects practically, you commonly write the output back into the input buffer you were given. Because of this, additional state is often required to remember previous inputs after they are overwritten.*
+*When writing effects practically, you commonly write the output sample back into the input buffer you were given. Because of this, additional state is often required to remember previous inputs after they are overwritten.*
 
 Effects, therefore, are commonly written as a *difference equation*, which is written as $y[n] = ...$. The left side is y[n], the output sample currently being calculated. The right side describes how that output is calculated from the current and previous input and output samples.
-
-```cpp
-// pseudocode example of an effect.
-// this does nothing to the input signal, but shows the general structure of effect processing.
-
-void process(float* x, int buffer_size)
-{
-    for (int n = 0; n < buffer_size; ++n)
-    {
-        float xn = x[n]; // current input sample
-
-        float yn = xn; // calculate the output
-
-        x[n] = yn; // put the output back into the buffer
-    }
-}
-```
 
 Finally, with all that out of the way, we can get into specifics!
 
