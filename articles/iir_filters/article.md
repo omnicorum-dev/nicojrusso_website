@@ -28,7 +28,8 @@ Effects, therefore, are commonly written as a *difference equation*, which is wr
 
 ```cpp
 // pseudocode example of an effect.
-// this does nothing to the input signal, but shows the general structure of effect processing.
+// this does nothing to the input signal,
+// but shows the general structure of effect processing.
 
 void process(float* x, int buffer_size)
 {
