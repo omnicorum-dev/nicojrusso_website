@@ -44,7 +44,7 @@ void process_buffer(float* x, int buffer_size)
 
         x[n] = yn; // put the output back into the buffer
 
-        xnm1 = xn; // save values for use later
+        xnm1 = xn; // save values for use in subsequent loops
         ynm1 = yn;
     }
 }
