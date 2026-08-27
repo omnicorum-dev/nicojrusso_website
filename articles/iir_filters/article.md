@@ -20,11 +20,11 @@ $$
 x[n]
 $$
 
-Filters are a specific kind of process applied to audio called an **effect**. Effects are distinct from **generators** (such as oscillators) in that effects have an input signal (commonly $x[]$) and an output signal (commonly $y[]$). Generators only have an output signal. Other examples of effects are reverb, distortion, compression, etc.
+Filters are a specific kind of process applied to audio called an **effect**. Effects are distinct from **generators** (such as oscillators) in that effects have an input signal ($x[]$) and an output signal ($y[]$). Generators only have an output signal. Other examples of effects are reverb, distortion, compression, etc.
 
-*Technical Note: When writing effects practically, you commonly write the output back into the input buffer you were given. Because of this, additional state is often required to remember previous inputs after they are overwritten.*
+*Technical Note: When writing effects practically, you write the output back into the input buffer you were given.  Because of this, additional state is often required to remember previous inputs after they are overwritten. See my pseudocode below.*
 
-Effects, therefore, are commonly written as a *difference equation*, which is written as $y[n] = ...$. The left side is y[n], the output sample currently being calculated. The right side describes how that output is calculated from the current and previous input and output samples.
+Effects, therefore, are usually written mathematically as a *difference equation*, which is written as $y[n] = ...$. The left side is y[n], the output sample currently being calculated. The right side describes how that output is calculated from the current and previous input and output samples.
 
 ```cpp
 // pseudocode example of an effect.
@@ -34,7 +34,7 @@ Effects, therefore, are commonly written as a *difference equation*, which is wr
 float xnm1 = 0; // previous input sample
 float ynm1 = 0; // previous output sample
 
-void process(float* x, int buffer_size)
+void process_buffer(float* x, int buffer_size)
 {
     for (int n = 0; n < buffer_size; ++n)
     {
