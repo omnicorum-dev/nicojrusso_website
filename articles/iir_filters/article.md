@@ -1,4 +1,4 @@
-# Attempting to Ungatekeep Digital Audio Filters
+# A Practical Guide to Digital Audio Filters
 
 ## Introduction
 
