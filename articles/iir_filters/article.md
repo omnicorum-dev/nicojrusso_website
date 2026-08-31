@@ -167,13 +167,46 @@ $$
 That's it! As a brief note, I've distributed the $-$ into the feedback
 portion just for cleanliness.
 
-The biquad is capable of creating a truly wild number of different filter types
-simply by giving it different coefficients. (If working in an object-oriented
-programming language, I highly recommend creating a class that contains the
-difference equation as a function and can keep track of the 4 necessary
-pieces of state: $x[n-1], x[n-2], y[n-1], y[n-2]$)
-
 Here is [my current biquad implementation in C++](https://github.com/omnicorum-dev/PluginDevCourse/blob/main/Templates_Materials/Classes/Biquad.h) if you're curious.
+
+And here's a rough sketch of something you could do in C.
+Of course, you can come up with any abstraction you want.
+
+```c
+typedef struct {
+    float xnm1 = 0.f;
+    float xnm2 = 0.f;
+    float ynm1 = 0.f;
+    float ynm2 = 0.f;
+} FilterState;
+
+typedef struct {
+    float f0 = 1000.f;
+    float Q = 0.7071f;
+    float A = 1.0f;
+
+    float w = 0.f;  float alpha = 0.f;
+    float b0 = 0.f; float b1 = 0.f; float b2 = 0.f;
+    float a0 = 1.f; float a1 = 0.f; float a2 = 0.f;
+    // a0 defaults to 1 to prevent division by 0
+} BiquadCoeffs;
+
+float processSample(float xn, FilterState *state, BiquadCoeffs *coeffs) {
+    float feedforward = coeffs->b0*xn + coeffs->b1*state->xnm1 + coeffs->b2*state->xnm2;
+    float feedback    =                 coeffs->a1*state->ynm1 + coeffs->a2*state->ynm2;
+    float yn = (1.f/a0) * (feedforward - feedback);
+
+    state->xnm2 = state->xnm1;
+    state->xnm1 = xn;
+    state->ynm2 = state->ynm1;
+    state->ynm1 = yn;
+
+    return yn;
+}
+```
+
+The biquad is capable of creating a truly wild number of different filter types
+simply by giving it different coefficients.
 
 Among these, the most common coefficient functions were written by Robert
 Bristow-Johnson, and are known as the **Audio EQ Cookbook**. Here is an
