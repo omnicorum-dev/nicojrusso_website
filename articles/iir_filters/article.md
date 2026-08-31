@@ -191,6 +191,7 @@ typedef struct {
     // a0 defaults to 1 to prevent division by 0
 } BiquadCoeffs;
 
+// you might need to scroll to see the rest of this lol
 float processSample(float xn, FilterState *state, BiquadCoeffs *coeffs) {
     float feedforward = coeffs->b0*xn + coeffs->b1*state->xnm1 + coeffs->b2*state->xnm2;
     float feedback    =                 coeffs->a1*state->ynm1 + coeffs->a2*state->ynm2;
