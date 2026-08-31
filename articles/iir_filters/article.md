@@ -181,10 +181,6 @@ typedef struct {
 } FilterState;
 
 typedef struct {
-    float f0 = 1000.f;
-    float Q = 0.7071f;
-    float A = 1.0f;
-
     float w = 0.f;  float alpha = 0.f;
     float b0 = 0.f; float b1 = 0.f; float b2 = 0.f;
     float a0 = 1.f; float a1 = 0.f; float a2 = 0.f;
