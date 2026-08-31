@@ -49,6 +49,29 @@
     -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css">
 
+    <!--
+        highlight.js theme: color scheme for syntax-highlighted code blocks
+        (keywords, strings, comments, etc. each get their own color). This is
+        "atom-one-dark", a common dark theme that fits the page's dark
+        background; swap the filename below for another theme from
+        https://highlightjs.org/examples if you want a different look. The
+        JS that actually does the highlighting is loaded near the bottom of
+        the page (see the script tags there) and is invoked from
+        markdown_article.js's highlightCodeBlocks(). IMPORTANT: this version
+        number (11.12.0) should match the highlight.min.js version below.
+
+        NOTE: this is pulled from cdnjs, not jsdelivr like marked/katex above.
+        Recent highlight.js versions stopped publishing a ready-to-use
+        browser bundle in the npm package itself (which is what jsdelivr
+        mirrors) -- it's ES modules/CommonJS only, meant for a bundler.
+        cdnjs builds and hosts its own pre-bundled minified browser file, so
+        that's what we use here instead. If you ever bump the version and
+        highlighting silently stops working again, check that a
+        highlight.min.js actually exists at the new version's cdnjs URL
+        before assuming the code is broken.
+    -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.12.0/styles/atom-one-dark.min.css">
+
     <!-- Our own stylesheets: general article look, then the demo widget's look. -->
     <link rel="stylesheet" href="/assets/styles/article_style.css">
     <link rel="stylesheet" href="/assets/styles/rbj_demo.css">
@@ -95,19 +118,27 @@
 
           1. marked      -- turns markdown text into HTML.
           2. katex       -- turns LaTeX strings into typeset math HTML.
-          3. markdown_article.js -- fetches article.md, calls marked + katex,
-                             injects the resulting HTML, and fires an
+          3. highlight.js -- syntax-highlights fenced code blocks. Bundles
+                             ~40 common languages (C, C++, Python, JS/TS,
+                             Java, C#, Bash, JSON, SQL, YAML, etc.) in this
+                             one file, so no per-language files to add as
+                             new articles use new languages.
+          4. markdown_article.js -- fetches article.md, calls marked + katex,
+                             injects the resulting HTML, runs highlight.js
+                             over the code blocks, and fires an
                              "article:rendered" event on `document` when done.
-          4. rbj_demo.js -- generic on load, but waits for "article:rendered"
+          5. rbj_demo.js -- generic on load, but waits for "article:rendered"
                              before it tries to build the interactive demo
                              (since the demo's mount point doesn't exist in the
                              DOM until markdown_article.js creates it).
 
-        If you ever want to bump the marked/katex versions, change BOTH the
-        version number in the URL below AND in the katex.min.css link above.
+        If you ever want to bump the marked/katex/highlight.js versions,
+        change BOTH the version number in the URL below AND in the
+        corresponding *.min.css link above (katex.min.css / atom-one-dark.min.css).
     -->
     <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.12.0/highlight.min.js" defer></script>
     <script src="/assets/apps/markdown_article.js" defer></script>
     <script src="/assets/apps/rbj_demo.js" defer></script>
 

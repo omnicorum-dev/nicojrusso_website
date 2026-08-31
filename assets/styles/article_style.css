@@ -239,10 +239,18 @@ body {
 }
 
 .article-content pre code {
-    /* Undo the inline-code styling above so it doesn't double up inside <pre>. */
+    /* Undo the inline-code styling above so it doesn't double up inside <pre>,
+       and go a bit smaller/tighter than the surrounding prose -- code reads
+       fine denser than body text, and it keeps long lines from wrapping as
+       often. highlight.js (see markdown_article.js) adds the actual token
+       colors on top of this; its own background/padding get overridden here
+       too so the block keeps this site's dark card look instead of the
+       theme's own background. */
     background: none;
     border: none;
     padding: 0;
+    font-size: 0.85em;
+    line-height: 1.6;
 }
 
 /* Images/SVGs referenced from the markdown, e.g. ![caption](diagram.svg).

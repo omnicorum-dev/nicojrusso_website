@@ -18,11 +18,13 @@
  *   5. Runs the remaining text through marked.parse() to get HTML.
  *   6. Puts the math back in, rendered as KaTeX HTML (renderMathIntoHtml()).
  *   7. Injects the final HTML into the article element.
- *   8. Fixes up any relative image/link URLs so they resolve against the
+ *   8. Syntax-highlights every fenced code block with highlight.js
+ *      (highlightCodeBlocks()).
+ *   9. Fixes up any relative image/link URLs so they resolve against the
  *      markdown file's folder, not the page's own URL (resolveRelativeUrls()).
- *   9. Replaces each demo tag's placeholder with a mount <div> a demo
+ *  10. Replaces each demo tag's placeholder with a mount <div> a demo
  *      script can hydrate (insertDemoMounts()).
- *  10. Fires a custom "article:rendered" event on `document`, so any
+ *  11. Fires a custom "article:rendered" event on `document`, so any
  *      demo script (e.g. rbj_demo.js) knows the article HTML now exists
  *      and it's safe to look for its mount point(s).
  *
@@ -143,6 +145,34 @@
                 console.error('KaTeX render error for "' + entry.tex + '":', err);
                 return '<code>' + entry.tex + '</code>';
             }
+        });
+    }
+
+    /**
+     * Syntax-highlight every fenced code block in the rendered article using
+     * highlight.js (loaded from a CDN in the article's HTML page -- see
+     * iir_filters.html's <head>/script tags). marked.js already renders a
+     * fenced block like:
+     *
+     *   ```cpp
+     *   int x = 1;
+     *   ```
+     *
+     * as <pre><code class="language-cpp">int x = 1;</code></pre> -- the
+     * "language-cpp" class is exactly what highlight.js looks for to pick a
+     * language, so there's nothing to configure here beyond calling it on
+     * each block. Blocks with no language on the fence (plain ```) get
+     * highlight.js's best-guess auto-detection instead of nothing.
+     *
+     * If the highlight.js CDN script failed to load (offline, ad blocker,
+     * CDN outage), this silently no-ops and the code just renders unstyled
+     * -- same fallback philosophy as the KaTeX/marked missing-library checks
+     * elsewhere in this file.
+     */
+    function highlightCodeBlocks(container) {
+        if (typeof window.hljs === 'undefined') return;
+        container.querySelectorAll('pre code').forEach(function (block) {
+            window.hljs.highlightElement(block);
         });
     }
 
@@ -304,6 +334,7 @@
                 html = renderMathIntoHtml(html, mathExtracted.store);
 
                 container.innerHTML = html;
+                highlightCodeBlocks(container);
                 resolveRelativeUrls(container, baseDir);
                 insertDemoMounts(container, demoExtracted.store);
 
